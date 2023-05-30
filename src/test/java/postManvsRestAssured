@@ -1,0 +1,36 @@
+pm                              RestAssured
+body.country                    body("country",
+body.'post code'                body("post code",
+body.places[0].'place name'     body("places[0].'place name'")
+body.places.'place name'        body("places.'place name'")   -> bütün place name leri verir
+                                bir index verilmezse dizinin bütün elemanlarında arar
+{
+    "post code": "90210",
+    "country": "United States",
+    "country abbreviation": "US",
+    "places": [
+        {
+            "place name": "Beverly Hills",
+            "longitude": "-118.4065",
+            "state": "California",
+            "state abbreviation": "CA",
+            "latitude": "34.0901"
+        },
+        {
+            "place name": "Beverly Hills",
+            "longitude": "-118.4065",
+            "state": "California",
+            "state abbreviation": "CA",
+            "latitude": "34.0901"
+        }
+    ]
+}
+
+
+{
+    "meta": {
+    "pagination": {
+        "total": 4252,       body("meta.pagination.total"  yani parantezler direkt noktadır. [] yok ise
+
+        http://api.zippopotam.us/tr/01111  -> path param
+        http://api.zippopotam.us/?us=90210 -> query param
