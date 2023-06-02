@@ -318,6 +318,7 @@ public class ZippoTest {
     @Test
     public void extractingJsonPOJO(){
         // POJO (Plain Old Java Object)
+        // Json Object
 
 //        Ogrenci ogr=new Ogrenci();
 //        ogr.id=1;
