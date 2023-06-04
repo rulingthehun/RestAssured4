@@ -34,7 +34,7 @@ public class Tasks {
      */
 
     @Test
-    public void task2(){
+    public void Task2(){
         given()
                 .when()
                 .get("https://httpstat.us/203")
@@ -58,8 +58,7 @@ public class Tasks {
      */
 
     @Test
-    public void task3(){
-        String output =
+    public void Task3(){
         given()
                 .when()
                 .get("https://httpstat.us/203")
@@ -68,8 +67,73 @@ public class Tasks {
                 // output: 203 Non-Authoritative Information
                 .statusCode(203)
                 .contentType(ContentType.TEXT)
-                .extract().asString()
+                .body(equalTo("203 Non-Authoritative Information"))
                 ;
-        System.out.println("output = " + output);
+        //2. Yöntem
+        String bodyText =
+        given()
+                .when()
+                .get("https://httpstat.us/203")
+                .then()
+                .log().body()
+                // output: 203 Non-Authoritative Information
+                .statusCode(203)
+                .contentType(ContentType.TEXT)
+                .extract().body().asString()
+        ;
+        Assert.assertTrue(bodyText.equalsIgnoreCase("203 Non-Authoritative Information"));
+    }
+
+    /**
+     * Task 4
+     * create a request to https://jsonplaceholder.typicode.com/todos/2
+     * expect status 200
+     * expect content type JSON
+     * expect title in response body to be "quis ut nam facilis et officia qui"
+     */
+    @Test
+    public void Task4(){
+        given()
+                .when()
+                .get("https://jsonplaceholder.typicode.com/todos/2")
+                .then()
+                .log().body()
+                .statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("title", equalTo("quis ut nam facilis et officia qui"))
+                ;
+    }
+
+    /**
+     * Task 5
+     * create a request to https://jsonplaceholder.typicode.com/todos/2
+     * expect status 200
+     * expect content type JSON
+     * expect response completed status to be false
+     */
+
+    @Test
+    public void Task5(){
+        given()
+                .when()
+                .get("https://jsonplaceholder.typicode.com/todos/2")
+                .then()
+                .log().body()
+                .statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("completed", equalTo(false))
+                ;
+        //2. Yöntem
+        Boolean response =
+        given()
+                .when()
+                .get("https://jsonplaceholder.typicode.com/todos/2")
+                .then()
+                .log().body()
+                .statusCode(200)
+                .contentType(ContentType.JSON)
+                .extract().path("completed")
+        ;
+        Assert.assertFalse(response);
     }
 }
