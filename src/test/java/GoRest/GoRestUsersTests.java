@@ -29,7 +29,7 @@ public class GoRestUsersTests {
         return RandomStringUtils.randomAlphabetic(8).toLowerCase()+"@gmail.com";
     }
 
-    @Test
+    @Test (enabled = false)
     public void createUserObject(){
         Map<String, String> newUser = new HashMap<>();
         newUser.put("name", getRandomName());
@@ -117,6 +117,63 @@ public class GoRestUsersTests {
                 .statusCode(200)
                 .contentType(ContentType.JSON)
                 .body("id",equalTo(userID))
+        ;
+    }
+
+    @Test(dependsOnMethods = "createUserObjectWithObject", priority = 2)
+    public void updateUserObject()
+    {
+        //newUser.setName("burak gaznep");
+
+        Map<String,String> updateUser = new HashMap<>();
+        updateUser.put("name","burak gaznep");
+        given()
+                .header("Authorization", "Bearer 5fc36a3168d6db80f76f15fb65b865206c16ccc7211981f783ca4adad18249b7")
+                .pathParam("userId",userID)
+                .contentType(ContentType.JSON)
+                .body(updateUser)
+                .log().body()
+                .log().uri()
+                .when()
+                .put("/{userId}")
+                .then()
+                .log().body()
+                .statusCode(200)
+                .contentType(ContentType.JSON)
+                .body("id",equalTo(userID))
+        ;
+    }
+
+    @Test(dependsOnMethods = "updateUserObject", priority = 3)
+    public void deleteUserByID()
+    {
+
+        given()
+                .header("Authorization", "Bearer 5fc36a3168d6db80f76f15fb65b865206c16ccc7211981f783ca4adad18249b7")
+                .pathParam("userId",userID)
+                .log().uri()
+
+                .when()
+                .delete("/{userId}")
+
+                .then()
+                .log().body()
+                .statusCode(204)
+        ;
+    }
+
+    @Test(dependsOnMethods = "deleteUserByID")
+    public void deleteUserByIDNegative()
+    {
+        given()
+                .header("Authorization", "Bearer 5fc36a3168d6db80f76f15fb65b865206c16ccc7211981f783ca4adad18249b7")
+                .pathParam("userId",userID)
+                .log().uri()
+                .when()
+                .delete("/{userId}")
+                .then()
+                .log().body()
+                .statusCode(404)
         ;
     }
 
