@@ -5,6 +5,7 @@ import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.poi.ss.formula.functions.Count;
 import org.testng.annotations.*;
 
 import java.util.HashMap;
@@ -53,10 +54,13 @@ public class CountryTest {
 
     @Test
     public void createCountry(){
+        countryName = getRandomName();
+        countryCode = getRandomCode();
         Country country = new Country();
-        country.setName(getRandomName());
-        country.setCode(getRandomCode());
+        country.setName(countryName);
+        country.setCode(countryCode);
 
+        countryID =
         given()
                 .cookies(cookies)
                 .contentType(ContentType.JSON)
@@ -66,11 +70,100 @@ public class CountryTest {
                 .then()
                 .log().body()
                 .statusCode(201)
+                .extract().jsonPath().getString("id")
                 ;
     }
 
-    @Test
+    @Test (dependsOnMethods = "createCountry", priority = 1)
     public void createCountryNegative(){
+        Country country = new Country();
+        country.setName(countryName);
+        country.setCode(countryCode);
 
+        given()
+                .cookies(cookies)
+                .contentType(ContentType.JSON)
+                .body(country)
+                .when()
+                .post("school-service/api/countries")
+                .then()
+                .log().body()
+                .statusCode(400)
+                .body("message", equalTo("The Country with Name \""+countryName+"\" already exists."))
+                .body("message", containsString("already exists"))
+        ;
     }
+
+    @Test (dependsOnMethods = "createCountry", priority = 2)
+    public void updateCountry(){
+        countryName = getRandomName();
+        countryCode = getRandomCode();
+        Country country = new Country();
+        country.setId(countryID);
+        country.setName(countryName);
+        country.setCode(countryCode);
+        given()
+                .cookies(cookies)
+                .contentType(ContentType.JSON)
+                .body(country)
+                .when()
+                .put("school-service/api/countries")
+                .then()
+                .log().body()
+                .statusCode(200)
+                .body("name", equalTo(countryName))
+                ;
+    }
+
+    @Test (dependsOnMethods = "updateCountry")
+    public void deleteCountryById(){
+        given()
+                .cookies(cookies)
+                .pathParam("countryID", countryID)
+                .log().uri()
+                .when()
+                .delete("school-service/api/countries/{countryID}")
+                .then()
+                .log().body()
+                .statusCode(200)
+        ;
+    }
+
+    @Test (dependsOnMethods = "deleteCountryById")
+    public void deleteCountryNegative(){
+        given()
+                .cookies(cookies)
+                .pathParam("countryID", countryID)
+                .log().uri()
+                .when()
+                .delete("school-service/api/countries/{countryID}")
+                .then()
+                .log().body()
+                .statusCode(400)
+                .body("message", equalTo("Country not found"))
+        ;
+    }
+
+// task : Silinmiş bir ülkeyi update etmeye çalışınız : updateCountryNegative
+@Test (dependsOnMethods = "deleteCountryNegative")
+public void updateCountryNegative(){
+    countryName = getRandomName();
+    countryCode = getRandomCode();
+    Country country = new Country();
+    country.setId(countryID);
+    country.setName(countryName);
+    country.setCode(countryCode);
+    given()
+            .cookies(cookies)
+            .contentType(ContentType.JSON)
+            .body(country)
+            .when()
+            .put("school-service/api/countries")
+            .then()
+            .log().body()
+            .statusCode(400)
+            .body("message", equalTo("Country not found"))
+    ;
+}
+
 }
